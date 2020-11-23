@@ -20,26 +20,55 @@ Hard:
 ## Usage
 
 ```terraform
-module "linux-weekly-updates" {
-  source              = "github.com/canada-ca-terraform-modules/terraform-azurerm_update_management?ref=20200527.1"
-  name                       = "${local.prefix}-${var.project}-linux-weekly-updates"
-  resource_group_name        = azurerm_resource_group.EBAP_SAS_VIYA_Private-rg.name
-  azurerm_automation_account = azurerm_automation_account.Project-aa
-  operatingSystem            = "Linux"
-  scope                      = [azurerm_resource_group.EBAP_SAS_VIYA_DMZ-rg.id, azurerm_resource_group.EBAP_SAS_VIYA_Private-rg.id]
-  startTime                  = "2020-05-28T00:00:00-00:00"
-  weekDays                   = ["Sunday"]
+terraform {
+  required_version = ">= 0.12"
 }
 
-module "windows-weekly-updates" {
-  source              = "github.com/canada-ca-terraform-modules/terraform-azurerm_update_management?ref=20200527.1"
-  name                       = "${local.prefix}-${var.project}-windows-weekly-updates"
-  resource_group_name        = azurerm_resource_group.EBAP_SAS_VIYA_Private-rg.name
-  azurerm_automation_account = azurerm_automation_account.Project-aa
-  operatingSystem            = "Windows"
-  scope                      = [azurerm_resource_group.EBAP_SAS_VIYA_DMZ-rg.id, azurerm_resource_group.EBAP_SAS_VIYA_Private-rg.id]
-  startTime                  = "2020-05-28T00:00:00-00:00"
+provider "azurerm" {
+  skip_provider_registration = true
+  version 		     = "= 2.37"
+  features          {
+  }
+}
+
+
+locals {
+  update_time = "22:00"
+  update_date = substr(time_offset.tomorrow.rfc3339, 0, 10)
+  update_timezone = "UTC"
+}
+
+resource "time_offset" "tomorrow" {
+  offset_days = 1
+}
+
+module "linux-group1-weekly-updates" {
+  source                     = "./terraform-azurerm_update_management"
+  name                       = "Linux-update-group1"
+  resource_group_name        = "weu-rg"
+  azurerm_automation_account = {name="xxx-automation"}
+  operatingSystem            = "Linux"
+  scope                      = ["/subscriptions/xxx"]
+  patchgroup                 = "group01"
+  timeZone                   = local.update_timezone
+  startTime                  = "${local.update_date}T${local.update_time}:00+02:00"
   weekDays                   = ["Sunday"]
+  linux_update_types         = "Critical, Security"
+}
+
+
+module "windows-group1-weekly-updates" {
+  source                     = "./terraform-azurerm_update_management"
+  name                       = "Windows-update-group1"
+  resource_group_name        = "dev-weu-rg"
+  azurerm_automation_account = {name="xxx-automation"}
+  operatingSystem            = "Windows"
+  scope                      = ["/subscriptions/xxx"]
+  patchgroup                 = "group01"
+  timeZone                   = local.update_timezone
+  startTime                  = "${local.update_date}T${local.update_time}:00+02:00"
+  weekDays                   = ["Sunday"]
+  windows_update_types       = "Critical, Security, Updates"
 }
 ```
 

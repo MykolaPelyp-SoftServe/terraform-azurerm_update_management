@@ -13,6 +13,10 @@ variable "azurerm_automation_account" {
   type = object({name = string})
 }
 
+variable "patchgroup" {
+  
+}
+
 variable "operatingSystem" {
   description = "Name of the VM OS type. Linux or Windows"
   type = string

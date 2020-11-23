@@ -33,7 +33,15 @@ resource "azurerm_template_deployment" "linux" {
                                     "scope": ${jsonencode(var.scope)}
                                 }
                             ],
-                            "nonAzureQueries": []
+                            "nonAzureQueries": [],
+                "tagSettings": {
+                  "tags": {
+                    "PatchGroup": [
+                        "${var.patchgroup}"
+                    ]
+                },
+                  "filterOperator": "string"
+                }
                         }
                     },
                     "scheduleInfo": {
@@ -85,7 +93,15 @@ resource "azurerm_template_deployment" "windows" {
                                     "scope": ${jsonencode(var.scope)}
                                 }
                             ],
-                            "nonAzureQueries": []
+                            "nonAzureQueries": [],
+                  "tagSettings": {
+                  "tags": {
+                    "PatchGroup": [
+                        "${var.patchgroup}"
+                    ]
+                },
+                  "filterOperator": "string"
+                }
                         }
                     },
                     "scheduleInfo": {
